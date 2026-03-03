@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Card {
+  id             String         @id @default(uuid())
+  tcgplayerId    Int            @unique 
+  name           String         // e.g., "Charizard ex" or "Monkey.D.Luffy"
+  setName        String         // e.g., "Paldean Fates" or "Awakening of the New Era"
+  cardNumber     String         // e.g., "234/091" or "OP05-119"
+  game           String         // e.g., "Pokemon" or "One Piece"
+  
+  // Relations
+  prices         PriceHistory[]
+  watchlistEntry Watchlist?     
+}
+
+model PriceHistory {
+  id             String   @id @default(uuid())
+  cardId         String
+  card           Card     @relation(fields: [cardId], references: [id])
+  
+  marketPrice    Float    // The TCGplayer "Market Price" (trailing average)
+  lowestListing  Float    // The current cheapest verified listing right now
+  timestamp      DateTime @default(now())
+
+  // This index speeds up the 7-day moving average queries
+  @@index([cardId, timestamp]) 
+}
+
+model Watchlist {
+  id               String    @id @default(uuid())
+  cardId           String    @unique
+  card             Card      @relation(fields: [cardId], references: [id])
+  
+  targetSnipePrice Float?    // Optional: hardcoded "Buy it if it hits $20"
+  isSettled        Boolean   @default(false) // Flips to true when the floor is found
+  lastAlertSent    DateTime? // Prevents Discord spam
+
+  createdAt        DateTime  @default(now())
+}
