@@ -15,21 +15,21 @@ async function main() {
     {
       tcgplayerId: 664937, 
       name: "Vayne - Hunter (Overnumbered)",
-      setName: "Riftbound", // Base / Promo
+      setName: "Spiritforged",
       cardNumber: "N/A",
       game: "Riftbound",
     },
     {
       tcgplayerId: 666784, 
       name: "Soraka - Wanderer (Overnumbered)",
-      setName: "Riftbound", 
+      setName: "Spiritforged", 
       cardNumber: "N/A",
       game: "Riftbound",
     },
     {
       tcgplayerId: 668214, 
       name: "Bard - Mercurial (Overnumbered)",
-      setName: "Riftbound", 
+      setName: "Spiritforged", 
       cardNumber: "N/A",
       game: "Riftbound",
     },
@@ -53,7 +53,12 @@ async function main() {
     // 2. Upsert prevents crashing if you run the seed script twice
     const card = await prisma.card.upsert({
       where: { tcgplayerId: cardData.tcgplayerId },
-      update: {}, 
+      update: {
+        name: cardData.name,
+        setName: cardData.setName,
+        cardNumber: cardData.cardNumber,
+        game: cardData.game,
+      }, 
       create: cardData,
     });
 

@@ -49,6 +49,26 @@ export async function updatePrices() {
       
       if (cards.length > 0) {
         const cardData = cards[0];
+
+        // 2b. Sync card metadata (set, game) from JustTCG if available
+        const updateData: Record<string, string> = {};
+        if (cardData.set && cardData.set !== entry.card.setName) {
+          updateData.setName = cardData.set;
+        }
+        if (cardData.game && cardData.game !== entry.card.game) {
+          updateData.game = cardData.game;
+        }
+        if (cardData.number && cardData.number !== entry.card.cardNumber) {
+          updateData.cardNumber = cardData.number;
+        }
+        if (Object.keys(updateData).length > 0) {
+          await prisma.card.update({
+            where: { id: entry.card.id },
+            data: updateData,
+          });
+          console.log(`  [metadata sync] ${entry.card.name}: updated ${Object.keys(updateData).join(", ")}`);
+        }
+
         const allVariants: any[] = cardData.variants || [];
         
         // 3. Filter for English language variants only
