@@ -49,22 +49,33 @@ export async function updatePrices() {
       
       if (cards.length > 0) {
         const cardData = cards[0];
+        const allVariants: any[] = cardData.variants || [];
         
-        // 3. Filter for specific conditions (e.g., Near Mint) and printings
-        const targetVariants = cardData.variants?.filter((v: any) => 
-          v.condition === "NM" && 
-          (v.printing === "Normal" || v.printing === "Holofoil")
-        ) || [];
+        // 3. Filter for English language variants only
+        const englishVariants = allVariants.filter((v: any) => v.language === "English");
+
+        // Prefer Near Mint, but fall back to any English variant if none are NM
+        const nmVariants = englishVariants.filter((v: any) => v.condition === "Near Mint");
+        const targetVariants = nmVariants.length > 0 ? nmVariants : englishVariants;
 
         if (targetVariants.length > 0) {
-          // Find the lowest price among the matching NM variants
+          // Find the lowest listed price among matching variants
           const lowestPrice = Math.min(...targetVariants.map((v: any) => v.price));
+
+          // Use the NM average price as market price when available, otherwise same as lowest
+          const nmAvg = nmVariants.length > 0
+            ? nmVariants.reduce((sum: number, v: any) => sum + v.price, 0) / nmVariants.length
+            : lowestPrice;
           
           newPriceRecords.push({
             cardId: entry.cardId,
-            marketPrice: lowestPrice, // JustTCG provides highly accurate market sell prices
-            lowestListing: lowestPrice, 
+            marketPrice: parseFloat(nmAvg.toFixed(2)),
+            lowestListing: lowestPrice,
           });
+
+          console.log(`  ${cardData.name}: lowest=$${lowestPrice} (${targetVariants.length} English variants)`);
+        } else {
+          console.log(`  ${cardData.name}: no English variants found`);
         }
       }
       
