@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./prisma";
 import "dotenv/config";
-
-const prisma = new PrismaClient();
 const API_KEY = process.env.JUSTTCG_API_KEY;
 
 export async function updatePrices() {

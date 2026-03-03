@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import { sendFloorAlert } from "./alerts";
-
-const prisma = new PrismaClient();
+import { prisma } from "./prisma";
+import { sendFloorAlert } from "./alert";
 
 // Configuration for what we consider a "Settled Floor"
 const SETTLE_THRESHOLD_PERCENT = 0.05; // 5% variance max
