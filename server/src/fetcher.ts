@@ -52,8 +52,8 @@ export async function updatePrices() {
 
         // 2b. Sync card metadata (set, game) from JustTCG if available
         const updateData: Record<string, string> = {};
-        if (cardData.set && cardData.set !== entry.card.setName) {
-          updateData.setName = cardData.set;
+        if (cardData.set_name && cardData.set_name !== entry.card.setName) {
+          updateData.setName = cardData.set_name;
         }
         if (cardData.game && cardData.game !== entry.card.game) {
           updateData.game = cardData.game;
