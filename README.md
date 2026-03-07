@@ -1,6 +1,6 @@
 # Last Pack Magic
 
-TCG price-floor tracker and snipe-alert dashboard. Monitors card prices via the JustTCG API, detects when prices settle, and surfaces buy opportunities on a cyberpunk-themed web dashboard.
+TCG price-floor tracker and snipe-alert dashboard. Monitors card prices via the JustTCG API, detects when prices settle, and surfaces buy opportunities on a web dashboard.
 
 ## Architecture
 
