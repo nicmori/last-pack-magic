@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed": "tsx src/seed.ts",
+    "cleanup": "tsx src/cleanup.ts",
     "dev": "tsx src/index.ts"
   },
   "keywords": [],
