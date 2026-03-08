@@ -43,6 +43,15 @@ function formatDateShort(dateStr: string): string {
   });
 }
 
+function formatDateWithTime(dateStr: string): string {
+  return new Date(dateStr).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function formatDateFull(dateStr: string | null): string {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -269,17 +278,17 @@ function MetricCard({
 function ChartTooltipContent({
   active,
   payload,
-  label,
 }: {
   active?: boolean;
-  payload?: Array<{ value: number; dataKey: string; color: string }>;
+  payload?: Array<{ value: number; dataKey: string; color: string; payload: { fullDate: string } }>;
   label?: string;
 }) {
   if (!active || !payload?.length) return null;
+  const fullDate = payload[0]?.payload?.fullDate;
   return (
     <div className="rounded-lg border border-neon-cyan/20 bg-[#0a0a0f]/95 px-3 py-2 shadow-lg backdrop-blur-sm">
       <div className="text-[10px] font-mono text-muted-foreground mb-1">
-        {label}
+        {fullDate}
       </div>
       {payload.map((entry, i) => (
         <div key={i} className="flex items-center gap-2 text-xs font-mono">
@@ -313,6 +322,7 @@ export function CardDetailModal({
     .reverse() // oldest first
     .map((p: PricePoint) => ({
       date: formatDateShort(p.timestamp),
+      fullDate: formatDateWithTime(p.timestamp),
       lowestListing: p.lowestListing,
       marketPrice: p.marketPrice,
     }));
