@@ -5,6 +5,7 @@ import { sendFloorAlert } from "./alert";
 const CV_THRESHOLD = 0.03;            // Coefficient of variation must be ≤ 3%
 const SLOPE_THRESHOLD_PERCENT = 0.01; // Normalized slope must be ≤ 1% of the mean per data point
 const MIN_DATA_POINTS = 5;            // Minimum recent points needed to evaluate
+const MIN_DISTINCT_DAYS = 3;          // Data must span at least 3 different calendar days
 const DAYS_TO_LOOK_BACK = 7;
 
 export async function analyzeWatchlistFloors() {
@@ -39,13 +40,14 @@ export async function analyzeWatchlistFloors() {
         continue;
       }
 
-      // 3. Extract just the prices
+      // 3. Extract prices and timestamps
       const prices = history.map((h) => h.lowestListing);
+      const timestamps = history.map((h) => h.timestamp);
 
       // 4. Sliding window — check if any recent window of MIN_DATA_POINTS is settled
       //    This lets us detect stabilization as soon as it happens, even if
       //    earlier data in the lookback period was volatile.
-      const isFloorFound = detectFloorInWindow(prices);
+      const isFloorFound = detectFloorInWindow(prices, timestamps);
 
       if (isFloorFound) {
         console.log(`📉 FLOOR FOUND! [${item.card.cardNumber}] ${item.card.name} has stabilized.`);
@@ -72,11 +74,19 @@ export async function analyzeWatchlistFloors() {
  * Slides a window of MIN_DATA_POINTS across the price array (most recent first)
  * and returns true as soon as any window passes both the CV and slope checks.
  */
-function detectFloorInWindow(prices: number[]): boolean {
+function detectFloorInWindow(prices: number[], timestamps: Date[]): boolean {
   // Start from the tail (most recent) and work backwards
   for (let end = prices.length; end >= MIN_DATA_POINTS; end--) {
-    const window = prices.slice(end - MIN_DATA_POINTS, end);
-    if (calculateIfSettled(window)) {
+    const windowPrices = prices.slice(end - MIN_DATA_POINTS, end);
+    const windowTimestamps = timestamps.slice(end - MIN_DATA_POINTS, end);
+
+    // Require data spanning at least MIN_DISTINCT_DAYS different calendar days
+    const distinctDays = new Set(
+      windowTimestamps.map((t) => t.toISOString().slice(0, 10))
+    );
+    if (distinctDays.size < MIN_DISTINCT_DAYS) continue;
+
+    if (calculateIfSettled(windowPrices)) {
       return true;
     }
   }
