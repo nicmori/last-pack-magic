@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { CardDetailModal } from "@/components/card-detail-modal";
 import type { WatchlistItem } from "@/types";
 
 interface WatchlistTableProps {
@@ -30,6 +32,9 @@ function formatDate(dateStr: string | null): string {
 }
 
 export function WatchlistTable({ items }: WatchlistTableProps) {
+  const [selectedItem, setSelectedItem] = useState<WatchlistItem | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-neon-cyan/10 bg-card/50 p-8 text-center font-mono text-sm text-muted-foreground neon-glow-cyan">
@@ -43,6 +48,12 @@ export function WatchlistTable({ items }: WatchlistTableProps) {
   }
 
   return (
+    <>
+    <CardDetailModal
+      item={selectedItem}
+      open={modalOpen}
+      onOpenChange={setModalOpen}
+    />
     <div className="overflow-hidden rounded-lg border border-neon-cyan/15 bg-card/60 backdrop-blur-sm neon-glow-cyan">
       <Table>
         <TableHeader>
@@ -62,7 +73,11 @@ export function WatchlistTable({ items }: WatchlistTableProps) {
           {items.map((item) => (
             <TableRow
               key={item.id}
-              className="border-b border-neon-cyan/5 transition-colors hover:bg-neon-cyan/5"
+              className="border-b border-neon-cyan/5 transition-colors hover:bg-neon-cyan/5 cursor-pointer"
+              onClick={() => {
+                setSelectedItem(item);
+                setModalOpen(true);
+              }}
             >
               <TableCell className="font-medium">
                 <div>
@@ -118,5 +133,6 @@ export function WatchlistTable({ items }: WatchlistTableProps) {
         </TableBody>
       </Table>
     </div>
+    </>
   );
 }
